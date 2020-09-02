@@ -25,6 +25,8 @@ void subfunc() {
 
 int main() {
   /* FLAMEGRAPH IS NOT A TIMELINE.  It does not show order of execution.
+  Flamgraph helps you figure out which functions your code spends most of its time in at each level
+  of the call stack.
 
   Flamegraph takes stack samples recorded by perf and postprocesses them for easy visualization.
   It aggregates them from the top of the stack (outermost call) downwards.
