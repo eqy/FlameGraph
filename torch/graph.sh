@@ -31,7 +31,7 @@ mkdir -p output
 outdir="output"
 pushd $outdir
 # The -F (frequency) argument to perf may also be useful here.
-perf record --call-graph $userspace_stack_unwind_method ../$appname
-perf script | ${FlameGraphUtils}/stackcollapse-perf.pl > out.perf-folded
+/usr/lib/linux-tools-5.15.0-82/perf record --call-graph $userspace_stack_unwind_method ../$appname
+/usr/lib/linux-tools-5.15.0-82/perf script | ${FlameGraphUtils}/stackcollapse-perf.pl > out.perf-folded
 ${FlameGraphUtils}/flamegraph.pl out.perf-folded > perf.svg
 popd

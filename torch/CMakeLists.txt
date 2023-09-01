@@ -1,5 +1,5 @@
 # Based on https://pytorch.org/tutorials/advanced/cpp_frontend.html#writing-a-basic-application
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 project(microbenchmark)
 
 find_package(Torch REQUIRED)
@@ -12,4 +12,4 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 add_executable(microbenchmark main.cpp)
 target_link_libraries(microbenchmark "${TORCH_LIBRARIES}")
-set_property(TARGET microbenchmark PROPERTY CXX_STANDARD 14)
+set_property(TARGET microbenchmark PROPERTY CXX_STANDARD 17)

@@ -2,25 +2,37 @@
 #include <iostream>
 // #include <chrono>
 
-#define ITER 100000
+#define ITER 10000000
 
-void micro_requires_grad_false() {
-  for (int i = 0; i < ITER; i++) {
-    // auto a = torch::empty({2, 3}, torch::dtype(torch::kFloat32).device(torch::kCUDA, 1).requires_grad(true));
-    auto a = torch::empty({2, 3}, torch::dtype(torch::kFloat32).device(torch::kCPU, 0));
-  }
+//void micro_requires_grad_false() {
+//  for (int i = 0; i < ITER; i++) {
+//    // auto a = torch::empty({2, 3}, torch::dtype(torch::kFloat32).device(torch::kCUDA, 1).requires_grad(true));
+//    auto a = torch::empty({2, 3}, torch::dtype(torch::kFloat32).device(torch::kCPU, 0));
+//  }
+//}
+//
+//void micro_requires_grad_true() {
+//  for (int i = 0; i < ITER; i++) {
+//    // auto a = torch::empty({2, 3}, torch::dtype(torch::kFloat32).device(torch::kCUDA, 1).requires_grad(true));
+//    auto a = torch::empty({2, 3}, torch::dtype(torch::kFloat32).device(torch::kCPU, 0).requires_grad(true));
+//  }
+//}
+//
+//void subfunc() {
+//  micro_requires_grad_true();
+//  micro_requires_grad_false();
+//}
+void nop_loop() {
+  //for (int i = 0; i < 1000; ++i) asm("nop");
 }
 
-void micro_requires_grad_true() {
+void micro_overhead_func() {
+  // using softmax for consistency with other repro
+  auto x = torch::randn({1}, torch::dtype(torch::kFloat32));
   for (int i = 0; i < ITER; i++) {
-    // auto a = torch::empty({2, 3}, torch::dtype(torch::kFloat32).device(torch::kCUDA, 1).requires_grad(true));
-    auto a = torch::empty({2, 3}, torch::dtype(torch::kFloat32).device(torch::kCPU, 0).requires_grad(true));
+    auto y = torch::nn::functional::log_softmax(x, -1);
+    nop_loop();
   }
-}
-
-void subfunc() {
-  micro_requires_grad_true();
-  micro_requires_grad_false();
 }
 
 int main() {
@@ -38,8 +50,8 @@ int main() {
 
   /* These calls are not aggregated with calls to micro_requires_grad* in subfunc(),
   because they occur at a different level of the call stack. */
-  micro_requires_grad_true();
-  micro_requires_grad_false();
+  //micro_requires_grad_true();
+  //micro_requires_grad_false();
 
   /* The two separate invocations of subfunc will appear as one big "subfunc" section of the flame graph.
   Their subcalls (micro_requires_grad_true() and micro_requires_grad_false()) are similarly aggregated.
@@ -47,7 +59,11 @@ int main() {
   roughly twice as wide as main's individual direct micro_requires_grad_true/false calls above, because subfunc() is
   called twice, so roughly twice as many samples should see "main->subfunc->micro_requires_grad_*" call stacks as see the
   "main->micro_requires_grad_*" call stacks. */
-  subfunc();
-  subfunc();
+  //subfunc();
+  //subfunc();
+  // auto t1 = std::chrono::high_resolution_clock::now();
+  micro_overhead_func();
+  // auto t2 = std::chrono::high_resolution_clock::now();
+  // std::cout << std::chrono::duration<double>(t2 - t1).count() << std::endl;
 }
 

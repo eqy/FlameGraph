@@ -1,6 +1,7 @@
 TORCHDIR=`python -c "import torch; print(torch.__file__[:-12])"`
 echo "Found Torch at " $TORCHDIR
 
+rm -r build
 mkdir -p build
 pushd build
 # Based on https://pytorch.org/tutorials/advanced/cpp_frontend.html#writing-a-basic-application 
